@@ -1,0 +1,350 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+        <title>reveal.js</title>
+
+        <link rel="stylesheet" href="css/reveal.css">
+        <link rel="stylesheet" href="css/theme/black.css">
+
+        <!-- Theme used for syntax highlighting of code -->
+        <link rel="stylesheet" href="lib/css/zenburn.css">
+
+        <!-- Printing and PDF exports -->
+        <script>
+            var link = document.createElement( 'link' );
+            link.rel = 'stylesheet';
+            link.type = 'text/css';
+            link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
+            document.getElementsByTagName( 'head' )[0].appendChild( link );
+        </script>
+    </head>
+    <body>
+        <div class="reveal">
+            <div class="slides">
+
+                <section>
+                    <h2>Hi!</h2>
+                </section>
+
+                <section>
+                    <section>
+                        <h3>Nowoczesna konteneryzacja</h3>
+                    </section>
+
+                    <section>
+                        <h3>Nowoczesna (2016) konteneryzacja</h3>
+                        <p><small class="fragment">Łukasz Maksymczuk</small></p>
+                        <p><small class="fragment">Codilime (cloudify)</small></p>
+                    </section>
+                </section>
+
+                <section>
+                    <li>Wprowadzenie</li>
+                    <li class="fragment">Historia</li>
+                    <li class="fragment">Otwarte standardy</li>
+                    <li class="fragment">rkt
+                        <span class="fragment">i kubernetes</span>
+                    </li>
+                    <li class="fragment">Demo</li>
+                </section>
+
+                <section>
+                    <h2>Historia</h2>
+                </section>
+
+                <section>
+                    <section>
+                        <p>dotcloud - wrapper na LXC i AUFS</p>
+                        <p class="fragment">osobne usługi</p>
+
+                        <aside class="notes">
+                            docker - dotcloud
+                        </aside>
+                    </section>
+
+                    <section>
+                        <pre>
+            - init -+- container
+                    +- hostinfo
+                    +- runner
+                    +- builder
+                    +- deployer
+                    +- metrics
+                    +- oomwrangler
+                    +- someotherstuff
+                    +- lxc-start -+- process X
+                    |              \- other process X
+                    +- lxc-start Y --- process Y
+                    \- lxc-start Z --- process Z
+                        </pre>
+                        <p class=fragment>problemy z lockowaniem</p>
+                    </section>
+
+                    <section>
+                        <p>docker - single point of...<span class=fragment> entry</span></p>
+                        <p class=fragment>docker vs LXC</p>
+                        <p class=fragment>...co doprowadziło do powstania libcontainer (2014)</p>
+                    </section>
+
+                    <section>
+                        <p>docker z libcontainer</p>
+                        <pre>
+            - init --- docker -+- dockerinit X -+- process X
+                               |                \- other process X
+                               +- dockerinit Y --- process Y
+                               \- dockerinit Z --- process Z
+                       </pre>
+                       <p class=fragment>demon i runtime w jednym</p>
+                    </section>
+
+                    <section>
+                        <p>...co doprowadziło do powstania containerd</p>
+                        <pre>
+            - init - docker - containerd -+- shim X -+- process X
+                                          |           \- other process X
+                                          +- shim Y --- process Y
+                                          \- shim Z --- process Z
+                        </pre>
+                    </section>
+                </section>
+
+                <section>
+                    <section>
+                        <h2>CoreOS</h2>
+                        <p class=fragment>minimalistyczna dystrybucja linuksa</p>
+                        <p class=fragment>nacisk na rozproszenie</p>
+                        <p class=fragment>"cloud-native"</p>
+                        <p class=fragment>pets vs cattle</p>
+                        <aside class=notes>
+                            <ul>
+                                <li>google "datacenter as a computer"</li>
+                                <li>nacisk na aplikacje, nie OS</li>
+                            </ul>
+                        </aside>
+                    </section>
+
+                    <section>
+                        <p>CoreOS: podstawą jest użycie kontenerów - Docker</p>
+                        <p class=fragment>...w 2014 CoreOS tworzy rkt <small class=fragment>(początkowo Rocket)</small></p>
+                    </section>
+
+                    <section>
+                        <p>rkt - container runtime</p>
+                        <p class=fragment>implementacja standardu appc</p>
+                    </section>
+
+                    <section>
+                        <p>appc</p>
+                        <p class=fragment>standardowy format obrazów</p>
+                        <p class=fragment>interfejs runtime</p>
+                        <p class=fragment>networking</p>
+                    </section>
+                </section>
+
+                <section>
+                    <section>
+                        <h2>Open Container Initiative</h2>
+                        <img class=fragment src=standards.png />
+                    </section>
+
+                    <section>
+                        <p>próba ujednolicenia standardów</p>
+                        <p class=fragment>współpraca pomiędzy dockerem, google, intel, microsoft, ...</p>
+                    </section>
+
+                    <section>
+                        <ul>
+                            <li>image spec</li>
+                            <li>runtime spec</li>
+                        </ul>
+                    </section>
+                    <section>
+                        <p>początkowo bazowany na dockerze</p>
+                        <p>runC/libcontainer</p>
+                        <p>format obrazu</p>
+                    </section>
+
+                </section>
+
+                <section>
+                    <section>
+                        <h2>rkt</h2>
+                        <p class=fragment>otwarty standard</p>
+                        <p class=fragment>secure by default</p>
+                        <p class=fragment>composable</p>
+                        <p class=fragment><code>rkt run coreos.com/etcd</code>
+                    </section>
+
+                    <section>
+                        <h2>rkt - security</h2>
+                        <p class=fragment>opt-out, nie opt-in</p>
+                        <p class=fragment>użycie roota?</p>
+                    </section>
+
+                    <section>
+                        <h2>rkt - composability</h2>
+                        <p class=fragment>zewnętrzna <span class=fragment>- użycie z systemd (lub innymi)</span></p>
+                        <p class=fragment>wewnętrzna:
+                            <ul>
+                                <li class=fragment>wymienialne komponenty (stage)</li>
+                                <li class=fragment>networking - pluginy</li>
+                            </ul>
+                        </p>
+                    </section>
+
+                    <section>
+                        <h2>rkt</h2>
+                        <p class=fragment>brak demona</p>
+                        <pre class=fragment>
+            - systemd -+- rkt -+- process X
+                       |       \- other process X
+                       +- rkt --- process Y
+                       \- rkt --- process Z
+                        </pre>
+                        <p class=fragment>dodatkowy demon dla monitoringu</p>
+                        <p class=fragment>docker <a href="#/4/1">już to przerabiał?</a></p>
+                    </section>
+
+                    <section>
+                        <img src=execution-flow.png />
+                    </section>
+
+                    <section>
+                        <h2>rkt - z czego się składa?</h2>
+                        <p class=fragment>stage 0 - CLI</p>
+                        <p class=fragment>stage 1 - runtime
+                            <ul>
+                                <li class=fragment>systemd-nspawn</li>
+                                <li class=fragment>kvm</li>
+                                <li class=fragment>fly</li>
+                                <li>...</li>
+                            </ul>
+                        </p>
+                        <p class=fragment>stage 2 - aplikacja</p>
+                    </section>
+
+                    <section>
+                        <h2>rkt - skąd brać obrazy?</h2>
+                        <p class=fragment>nie ma centralnego huba</p>
+                        <p class=fragment>import obrazów dockera</p>
+                        <p class=fragment>acbuild <span class=fragment>i alternatywne implementacje</span></p>
+                    </section>
+
+                    <section>
+                        <h2>rkt - współpraca z systemd</h2>
+                        <p class=fragment>nie jest wymagana!</p>
+                        <p class=fragment>machined</p>
+                        <p class=fragment>journald</p>
+                        <p class=fragment>socket activation</p>
+                    </section>
+
+                    <section>
+                        <h2>rkt - networking</h2>
+                        <p class=fragment>kompletna izolacja</p>
+                        <p class=fragment>--net=host</p>
+                        <p class=fragment>--net=default</p>
+                        <p class=fragment>--net=default-restricted</p>
+                        <p class=fragment>wystawianie portów</p>
+                        <p class=fragment>flannel</p>
+                    </section>
+
+                    <section>
+                        <h2>rkt - volumes</h2>
+                        <p class=fragment>--volume nazwa,kind=host,source=/</p>
+                        <p class=fragment>--mount nazwa,target=/</p>
+                    </section>
+
+                    <section>
+                        <p>rkt run</p>
+                        <p>rkt fetch</p>
+                        <p>rkt list</p>
+                        <p>rkt image list</p>
+                        <p>rkt export</p>
+                        <p>rkt enter</p>
+                        <p class=fragment>rkt prepare/rkt run-prepared</p>
+                        <p class=fragment>rkt image extract/rkt image render</p>
+                        <p class=fragment>rkt gc</p>
+                        <aside class=notes>
+                            pody nie są usuwane automatycznie, stąd potrzeba gc;
+                            powiedzieć na jakiej zasadzie działa np. list etc
+                            bez demona
+                        </aside>
+                    </section>
+
+                </section>
+
+                <section>
+                    <section>
+                        <h2>Kubernetes</h2>
+                        <p class=fragment>stara się nie robić założeń o runtime</p>
+                        <p class=fragment>mimo wszystko, głównie pod dockera</p>
+                        <p class=fragment>rktnetes <span class=fragment>- kilka drobnych problemów, ale działa</span></p>
+                    </section>
+
+                    <section>
+                        <img src=rknetes.png />
+                    </section>
+                </section>
+
+                <section>
+                    <h2>demo time!</h2>
+                    <aside class=notes>
+                        <ol>
+                            <li>uruchomić busybox aci</li>
+                            <li>webappka
+                                <ol>
+                                    <li>zbudować prosty image z acbuild - pythonowa webappka</li>
+                                    <li>podpisać go</li>
+                                    <li>uruchomić lokalnie z fly, a potem z systemd-nspawn</li>
+                                    <li>pokazać machinectl, journald</li>
+                                    <li>pokazać z --net=host etc</li>
+                                    <li>wrzucić obraz na http i ściągnąć go</li>
+                                </ol>
+                            </li>
+                            <li>nginx:
+                                <ol>
+                                    <li>ściągnąć image nginx z dockera</li>
+                                    <li>edytować coś w nim (port?)</li>
+                                    <li>uruchomić go</li>
+                                    <li>zrobić sieć między nginxem a appką</li>
+                                </ol>
+                            </li>
+                            <li>kubernetes
+                                <ol>
+                                    <li>postawić cluster?</li>
+                                    <li>odpalić webappki i nginxy</li>
+                                </ol>
+                            </li>
+                        </ol>
+                    </aside>
+                </section>
+
+                <section>
+                    <h2>Dziękuję za uwagę</h2>
+                    <p class=fragment>Q&amp;A?</p>
+                </section>
+            </div>
+        </div>
+
+        <script src="lib/js/head.min.js"></script>
+        <script src="js/reveal.js"></script>
+
+        <script>
+            // More info https://github.com/hakimel/reveal.js#configuration
+            Reveal.initialize({
+                history: true,
+
+                // More info https://github.com/hakimel/reveal.js#dependencies
+                dependencies: [
+                    { src: 'plugin/markdown/marked.js' },
+                    { src: 'plugin/markdown/markdown.js' },
+                    { src: 'plugin/notes/notes.js', async: true },
+                    { src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } }
+                ]
+            });
+        </script>
+    </body>
+</html>
