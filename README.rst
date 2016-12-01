@@ -14,5 +14,4 @@ Co jest w tym repo
 - demo.txt - notatki do demo
 - scripts/ - zapisane komendy do użycia w demie
 - hosting/ - do serwowania obrazu .aci przez http (w tym klucze do podpisywania ich)
-- webapp/ - appka do spakowania w obraz podczas demaindex.html - slajdy
-
+- webapp/ - appka do spakowania w obraz podczas dema
