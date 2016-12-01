@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <meta name="ac-discovery" content="example.com/hello https://example.com/images/{name}-{version}-{os}-{arch}.{ext}">
-    <meta name="ac-discovery-pubkeys" content="example.com/hello https://example.com/pubkeys.gpg">
+    <meta name="ac-discovery" content="example.com/webapp http://example.com/images/{name}-{version}-{os}-{arch}.{ext}">
+    <meta name="ac-discovery-pubkeys" content="example.com/webapp http://example.com/pubkeys.gpg" />
   </head>
 </html>

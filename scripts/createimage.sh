@@ -19,4 +19,15 @@ acbuild --debug set-exec -- /opt/venv/bin/python -m webapp
 
 acbuild port add http tcp 5000
 
+acbuild --debug mount add secret /opt/secret
+acbuild --debug set-event-handler pre-start -- sh -c "echo top top secret > /tmp/topsecret"
+
+acbuild --debug set-exec -- /opt/venv/bin/python -m webapp /opt/secret /tmp/topsecret
+
+echo '{ "set": ["CAP_NET_RAW"] }' | acbuild isolator add "os/linux/capabilities-remove-set" -
+
 acbuild write webapp-latest-linux-amd64.aci
+
+
+
+acbuild --debug set-event-handler pre-start -- /bin/sh -c "echo top top secret > /tmp/topsecret"

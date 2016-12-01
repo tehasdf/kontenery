@@ -1,0 +1,74 @@
+PAMIETAJ O SELINUKSIE - /etc/sysconfig/selinux
+
+- uruchomić busybox - normalny stage 1
+	- rkt run --interactive quay.io/coreos/alpine-sh
+- pokazać ps
+- rozejrzeć się w kontenerze (ls, ps)
+- pokazać rkt list, rkt image list
+	- rkt list --format json | jq -Mr  '.[] | .name'   | xargs -L1 rkt status
+- machinectl, journalctl
+- rkt enter
+- rkt nie ma demona - skąd o tym wie? pokazać CAS db
+	- export GOPATH=/opt/go
+	 go get github.com/cznic/ql/ql
+	/opt/go/bin/ql -db /var/lib/rkt/cas/db/ql.db  -schema "."
+	/opt/go/bin/ql -db /var/lib/rkt/cas/db/ql.db  "select * from aciinfo"
+
+- uruchomić busybox - fly stage1
+	- rkt run --stage1-name=coreos.com/rkt/stage1-fly:1.18.0   --interactive quay.io/coreos/alpine-sh --exec /bin/alpine-sh
+- pokazać ps, różnica vs tamten
+
+z kvm:
+- rkt run --stage1-name=coreos.com/rkt/stage1-kvm:1.14.0 --interactive quay.io/coreos/alpine-sh --exec /bin/alpine-sh
+
+
+- budowa obrazu: ac begin  (patrz scripts/createimage.sh)
+- ac set-name, tutaj możemy pokazać manifest
+- ac dep, tutaj pokażemy znowu manifest i porównamy do dockerfile (DAG vs prosta)
+- ac run apk update - po tym pokażemy manifest i rootfs - parę słów o tym, że w tym
+  momencie naprawdę ściąga base image(s)
+- pokazać też rootfs baseimage
+- omówić apkę przed zainstalowaniem jej do venva... pokazać źródła
+- ac set-exec - porównać do docker entrypoint - powiedzieć co to jest
+- ac port add - taki expose - różni się od dockera w sumie głównie nazwą
+- ac mount add - też porównać do dockera
+- ac 
+- uruchomić: rkt run --insecure-options=image --volume secret,kind=host,source=/opt/foo.txt ./webapp-latest-linux-amd64.aci 
+- wejść na kontener, popisać coś
+- stop, export, fetch, image extract, zobaczyć w rootfs
+
+- jeszcze zostało do pokazania metadata service:
+	- postaw metadata service na hosciels
+	- odpal pod z --mds-register
+	- enter
+	- curl $AC_METADATA_URL/acMetadata/v1/pod/annotations
+	https://github.com/appc/spec/blob/master/spec/ace.md#app-container-metadata-service
+	- curl $AC_METADATA_URL/acMetadata/v1/apps/webapp/manifest
+	- curl $AC_METADATA_URL/acMetadata/v1/apps/webapp/annotations
+
+- zaimportować image z dockera
+	- rkt run --insecure-options=image docker://nginx
+	- opowiedzieć o docker2aci
+		- rkt cat-manifest POD_ID
+		- zeby znalezc id image
+		- rkt image cat-manifest IMAGE_ID
+		- i ogladamy wygenerowany manifest
+- zapisac nginx.conf - np /tmp/nginx.conf
+- odpalić nginx z configiem: rkt run --insecure-options=image docker://nginx --volume config,kind=host,source=/tmp/nginx.conf --mount volume=config,target=/etc/nginx/nginx.conf
+- odpalić pod z 2 apkami: 
+	- zmienić nginx conf (druga wersja)
+	- rkt run --insecure-options=image docker://nginx --volume config,kind=host,source=/tmp/nginx.conf --mount volume=config,target=/etc/nginx/nginx.conf  --volume secret,kind=host,source=/opt/foo.txt /opt/webapp-latest-linux-amd64.aci
+- enter do każdej z nich, pokazać FS, dać do zrozumienia że interfejs sieciowy jest ten sam
+
+- czas na rkt gc!
+
+- przerzuć obraz z webappką na hosta
+- podpisz go (scripts/signing.sh) i wystaw z hosting
+- dodaj klucz: rkt --debug trust --insecure-options=http,tls --insecure-allow-http  --prefix example.com/webapp
+- czasem powyzsze nie dziala? uzylem --prefix 10.0.1.1 i sie odblokowalo...
+- jakby co, to: rkt --debug trust --insecure-options=http,tls --insecure-allow-http  --prefix example.com/webapp http://example.com/pubkeys.gpg
+
+
+
+kubernetes:
+  - minikube (patrz scripts/kubernetes.sh)

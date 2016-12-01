@@ -27,6 +27,9 @@
 
                 <section>
                     <h2>Hi!</h2>
+                    <p>Źródło (slajdy i kod): <a href=https://github.com/tehasdf/kontenery>https://github.com/tehasdf/kontenery</a></p>
+                    <p><small class="fragment">Łukasz Maksymczuk</small></p>
+                    <p><small class="fragment">Codilime (cloudify)</small></p>
                 </section>
 
                 <section>
@@ -36,8 +39,6 @@
 
                     <section>
                         <h3>Nowoczesna (2016) konteneryzacja</h3>
-                        <p><small class="fragment">Łukasz Maksymczuk</small></p>
-                        <p><small class="fragment">Codilime (cloudify)</small></p>
                     </section>
                 </section>
 
@@ -61,7 +62,8 @@
                         <p class="fragment">osobne usługi</p>
 
                         <aside class="notes">
-                            docker - dotcloud
+                            dotcloud - protoplasta dockera - 2010; wrapper na lxc,
+                            napisany w pythonie
                         </aside>
                     </section>
 
@@ -142,6 +144,25 @@
                         <p class=fragment>interfejs runtime</p>
                         <p class=fragment>networking</p>
                     </section>
+                    <section>
+                        <p>appc - tooling</p>
+                        <p class=fragment>
+                            konwertery:
+                            <ul>
+                                <li class=fragment>docker2aci</li>
+                                <li class=fragment>deb2aci</li>
+                                <li class=fragment>oci2aci</li>
+                            </ul>
+                        </p>
+                        <p class=fragment>actool</p>
+                    </section>
+                    <section>
+                        <p>appc - implementacje</p>
+                        <p class=fragment>rkt</p>
+                        <p class=fragment>https://github.com/3ofcoins/jetpack - oparty o FreeBSD Jaile i ZFS</p>
+                        <p class=fragment>https://github.com/apcera/kurma - używa libcontainer</p>
+                        <p class=fragment>również biblioteki: https://github.com/cdaylward/libappc <span class=fragment>note: projekt upadł :(</span></p>
+                    </section>
                 </section>
 
                 <section>
@@ -163,8 +184,8 @@
                     </section>
                     <section>
                         <p>początkowo bazowany na dockerze</p>
-                        <p>runC/libcontainer</p>
-                        <p>format obrazu</p>
+                        <p class=fragment>runC/libcontainer</p>
+                        <p class=fragment>a także format obrazu</p>
                     </section>
 
                 </section>
@@ -182,6 +203,7 @@
                         <h2>rkt - security</h2>
                         <p class=fragment>opt-out, nie opt-in</p>
                         <p class=fragment>użycie roota?</p>
+                        <p class=fragment>capabilities</p>
                     </section>
 
                     <section>
@@ -229,26 +251,42 @@
                     <section>
                         <h2>rkt - skąd brać obrazy?</h2>
                         <p class=fragment>nie ma centralnego huba</p>
+                        <p class=fragment>dns-based discovery</p>
                         <p class=fragment>import obrazów dockera</p>
                         <p class=fragment>acbuild <span class=fragment>i alternatywne implementacje</span></p>
+                        <p class=fragment>https://github.com/blablacar/dgr</p>
+                        <p class=fragment>https://github.com/appc/goaci</p>
                     </section>
 
                     <section>
                         <h2>rkt - współpraca z systemd</h2>
                         <p class=fragment>nie jest wymagana!</p>
                         <p class=fragment>machined</p>
-                        <p class=fragment>journald</p>
+                        <p class=fragment>jour  nald</p>
                         <p class=fragment>socket activation</p>
                     </section>
 
                     <section>
                         <h2>rkt - networking</h2>
-                        <p class=fragment>kompletna izolacja</p>
+                        <p class=fragment>kompletna izolacja (--net=none)</p>
                         <p class=fragment>--net=host</p>
                         <p class=fragment>--net=default</p>
                         <p class=fragment>--net=default-restricted</p>
                         <p class=fragment>wystawianie portów</p>
+                        <p class=fragment>CNI</p>
                         <p class=fragment>flannel</p>
+
+                        <aside class=notes>
+                            host znaczy że aplikacje mają dokładnie tą samą łączność co na hoście.
+
+                            default - kontener ma IP w podsieci w której jest veth na hoście;
+                            jest ustawiony routing i NATowanie, żeby była komunikacja z internetem
+
+                            default-restricted - kontener ma IP w podsieci hosta tak jak default,
+                            ale bez NATu i routingu - tylko do komunikacji z hostem (np. )
+
+                            CNI - flannel, weave, calico, etc
+                        </aside>
                     </section>
 
                     <section>
@@ -279,6 +317,11 @@
                 <section>
                     <section>
                         <h2>Kubernetes</h2>
+                        <p>scheduler kontenerów</p>
+                    </section>
+
+                    <section>
+                        <h2>Kubernetes</h2>
                         <p class=fragment>stara się nie robić założeń o runtime</p>
                         <p class=fragment>mimo wszystko, głównie pod dockera</p>
                         <p class=fragment>rktnetes <span class=fragment>- kilka drobnych problemów, ale działa</span></p>
@@ -287,39 +330,14 @@
                     <section>
                         <img src=rknetes.png />
                     </section>
+
+                    <section>
+                        <img src=rktnetes_features.png />
+                    </section>                    
                 </section>
 
                 <section>
                     <h2>demo time!</h2>
-                    <aside class=notes>
-                        <ol>
-                            <li>uruchomić busybox aci</li>
-                            <li>webappka
-                                <ol>
-                                    <li>zbudować prosty image z acbuild - pythonowa webappka</li>
-                                    <li>podpisać go</li>
-                                    <li>uruchomić lokalnie z fly, a potem z systemd-nspawn</li>
-                                    <li>pokazać machinectl, journald</li>
-                                    <li>pokazać z --net=host etc</li>
-                                    <li>wrzucić obraz na http i ściągnąć go</li>
-                                </ol>
-                            </li>
-                            <li>nginx:
-                                <ol>
-                                    <li>ściągnąć image nginx z dockera</li>
-                                    <li>edytować coś w nim (port?)</li>
-                                    <li>uruchomić go</li>
-                                    <li>zrobić sieć między nginxem a appką</li>
-                                </ol>
-                            </li>
-                            <li>kubernetes
-                                <ol>
-                                    <li>postawić cluster?</li>
-                                    <li>odpalić webappki i nginxy</li>
-                                </ol>
-                            </li>
-                        </ol>
-                    </aside>
                 </section>
 
                 <section>
